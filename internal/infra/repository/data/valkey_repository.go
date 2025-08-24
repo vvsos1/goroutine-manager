@@ -21,7 +21,7 @@ func NewValkeyRepository(valkeyAddress string) *ValkeyRepository {
 		InitAddress: []string{valkeyAddress},
 	})
 	if err != nil {
-		log.Println("Failed to connect to Valkey:", err)
+		log.Println("Failed to connect to Valkey at", valkeyAddress, ":", err)
 		panic(err)
 	}
 	log.Println("Connected to Valkey at", valkeyAddress)
@@ -35,7 +35,7 @@ func (r *ValkeyRepository) Put(key domain.GoroutineId, value string) error {
 	cmd := r.client.B().Set().Key(strconv.Itoa(int(key))).Value(value).Build()
 	err := r.client.Do(ctx, cmd).Error()
 	if err != nil {
-		return fmt.Errorf("failed to put value in valkey")
+		return fmt.Errorf("failed to put value in valkey: %w", err)
 	}
 	return nil
 }
@@ -45,7 +45,7 @@ func (r *ValkeyRepository) Get(key domain.GoroutineId) (string, error) {
 	cmd := r.client.B().Get().Key(strconv.Itoa(int(key))).Build()
 	result, err := r.client.Do(ctx, cmd).ToString()
 	if err != nil {
-		return "", fmt.Errorf("failed to get value from valkey")
+		return "", fmt.Errorf("failed to get value from valkey: %w", err)
 	}
 	return result, nil
 }

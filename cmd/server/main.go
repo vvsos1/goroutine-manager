@@ -5,7 +5,10 @@ import (
 	"goroutine-manager/internal/infra/repository/goroutine"
 	"goroutine-manager/internal/usecase"
 	router "goroutine-manager/internal/web/http"
+	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -13,7 +16,11 @@ import (
 
 func main() {
 	//dataRepo := data.NewMemoryRepository()
-	dataRepo := data.NewValkeyRepository("localhost:6379")
+	addr := os.Getenv("VALKEY_ADDR")
+	if addr == "" {
+		addr = "localhost:6379"
+	}
+	dataRepo := data.NewValkeyRepository(addr)
 	goroutineRepo := goroutine.NewMemoryGoroutineRepository()
 	goroutineUC := usecase.NewGoroutineInteractor(goroutineRepo, dataRepo)
 
@@ -22,7 +29,18 @@ func main() {
 
 	router.MountRoutes(r, goroutineUC)
 
-	if err := http.ListenAndServe(":3000", r); err != nil {
+	// Read server port from env
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	listenAddr := port
+	if !strings.Contains(port, ":") {
+		listenAddr = ":" + port
+	}
+	log.Printf("HTTP server listening on %s", listenAddr)
+
+	if err := http.ListenAndServe(listenAddr, r); err != nil {
 		panic(err)
 	}
 

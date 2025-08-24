@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  valkey:
+    image: valkey/valkey:8.1.3-alpine
+    container_name: valkey
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey-data:/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: goroutine-manager
+    environment:
+      - PORT=3000
+      - VALKEY_ADDR=valkey:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      - valkey
+
+volumes:
+  valkey-data:
+

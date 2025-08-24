@@ -1,0 +1,25 @@
+# VCS
+.git
+.gitignore
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Dependencies/cache
+vendor/
+*.cache/
+/go/
+
+# Binaries & build artifacts
+bin/
+build/
+server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Tests output
+coverage.out
