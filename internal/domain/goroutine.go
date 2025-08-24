@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"log"
 	"time"
 )
 
@@ -75,7 +76,7 @@ func (g *Goroutine) Delete() {
 func (g *Goroutine) saveToRepository() {
 	err := g.dataRepository.Put(g.Id, time.Now().String())
 	if err != nil {
-		// TODO: 에러 처리
+		log.Println("Failed to save to data repository:", err)
 		return
 	}
 }
@@ -83,7 +84,7 @@ func (g *Goroutine) saveToRepository() {
 func (g *Goroutine) readFromRepository() string {
 	value, err := g.dataRepository.Get(g.Id)
 	if err != nil {
-		// TODO: 에러 처리
+		log.Println("Failed to read from data repository:", err)
 		return ""
 	}
 	return value

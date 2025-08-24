@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"goroutine-manager/internal/domain"
+	"log"
 	"strconv"
 
 	"github.com/valkey-io/valkey-go"
@@ -20,10 +21,10 @@ func NewValkeyRepository(valkeyAddress string) *ValkeyRepository {
 		InitAddress: []string{valkeyAddress},
 	})
 	if err != nil {
-		// TODO: 에러 처리
+		log.Println("Failed to connect to Valkey:", err)
 		panic(err)
 	}
-	fmt.Println("Connected to Valkey at", valkeyAddress)
+	log.Println("Connected to Valkey at", valkeyAddress)
 	return &ValkeyRepository{
 		client: client,
 	}
