@@ -8,11 +8,11 @@ services:
       - "6379:6379"
     volumes:
       - valkey-data:/data
-  goroutine-manager:
+  worker-manager:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: goroutine-manager
+    container_name: worker-manager
     environment:
       - PORT=3000
       - VALKEY_ADDR=valkey:6379

@@ -5,72 +5,80 @@ import (
 	"goroutine-manager/internal/domain"
 )
 
-type GoroutineInteractor struct {
-	goroutineRepository domain.GoroutineRepository
-	dataRepository      domain.KeyValueRepository
+type WorkerInteractor struct {
+	workerRepository domain.WorkerRepository
+	dataRepository   domain.DataRepository
 }
 
-var _ GoroutineUsecase = (*GoroutineInteractor)(nil)
+var _ WorkerUsecase = (*WorkerInteractor)(nil)
 
-func NewGoroutineInteractor(goroutineRepository domain.GoroutineRepository, repository domain.KeyValueRepository) *GoroutineInteractor {
-	return &GoroutineInteractor{
-		goroutineRepository: goroutineRepository,
-		dataRepository:      repository,
+func NewWorkerInteractor(workerRepository domain.WorkerRepository, dataRepository domain.DataRepository) *WorkerInteractor {
+	return &WorkerInteractor{
+		workerRepository: workerRepository,
+		dataRepository:   dataRepository,
 	}
 }
 
-func (gm *GoroutineInteractor) Create(saveDuration int) (domain.GoroutineId, error) {
-	goroutine := domain.NewGoroutine(saveDuration, gm.dataRepository)
-	err := gm.goroutineRepository.Save(goroutine)
+func (gm *WorkerInteractor) Create(saveDuration int, workerMsg string) (domain.WorkerId, error) {
+	worker := domain.NewWorker(saveDuration, workerMsg, gm.dataRepository)
+	err := gm.workerRepository.Save(worker)
 	if err != nil {
-		return -1, fmt.Errorf("failed to create goroutine: %v", err)
+		return -1, fmt.Errorf("failed to create worker: %v", err)
 	}
 
-	goroutine.StartInGoroutine()
+	worker.StartInGoroutine()
 
-	return goroutine.Id, nil
+	return worker.Id, nil
 }
 
-func (gm *GoroutineInteractor) Get(id domain.GoroutineId) (string, error) {
-	goroutine, err := gm.goroutineRepository.Get(id)
+func (gm *WorkerInteractor) Get(id domain.WorkerId) (*domain.Worker, error) {
+	worker, err := gm.workerRepository.Get(id)
 	if err != nil {
-		return "", fmt.Errorf("goroutine with id %d not found", id)
+		return nil, fmt.Errorf("worker with id %d not found", id)
 	}
-	value := goroutine.Read()
+	return worker, nil
+}
+
+func (gm *WorkerInteractor) GetData(id domain.WorkerId) (*domain.Data, error) {
+	worker, err := gm.workerRepository.Get(id)
+	if err != nil {
+		return nil, fmt.Errorf("worker with id %d not found", id)
+	}
+	value := worker.Read()
 	return value, nil
 }
 
-func (gm *GoroutineInteractor) Update(id domain.GoroutineId, saveDuration int) error {
-	goroutine, err := gm.goroutineRepository.Get(id)
+func (gm *WorkerInteractor) Update(id domain.WorkerId, saveDuration int, workerMsg string) error {
+	worker, err := gm.workerRepository.Get(id)
 
 	if err != nil {
-		return fmt.Errorf("goroutine with id %d not found", id)
+		return fmt.Errorf("worker with id %d not found", id)
 	}
-	goroutine.Update(saveDuration)
+	worker.Update(saveDuration, workerMsg)
 
-	err = gm.goroutineRepository.Save(goroutine)
+	err = gm.workerRepository.Save(worker)
 	if err != nil {
-		return fmt.Errorf("goroutine with id %d was not updated", id)
-	}
-
-	return nil
-}
-
-func (gm *GoroutineInteractor) Delete(id domain.GoroutineId) error {
-	goroutine, err := gm.goroutineRepository.Get(id)
-	if err != nil {
-		return fmt.Errorf("goroutine with id %d not found", id)
-	}
-	goroutine.Delete()
-
-	err = gm.goroutineRepository.Delete(id)
-	if err != nil {
-		return fmt.Errorf("goroutine with id %d was not deleted", id)
+		return fmt.Errorf("worker with id %d was not updated", id)
 	}
 
 	return nil
 }
 
-func (gm *GoroutineInteractor) Count() int {
-	return gm.goroutineRepository.Count()
+func (gm *WorkerInteractor) Delete(id domain.WorkerId) error {
+	worker, err := gm.workerRepository.Get(id)
+	if err != nil {
+		return fmt.Errorf("worker with id %d not found", id)
+	}
+	worker.Delete()
+
+	err = gm.workerRepository.Delete(id)
+	if err != nil {
+		return fmt.Errorf("worker with id %d was not deleted", id)
+	}
+
+	return nil
+}
+
+func (gm *WorkerInteractor) Count() int {
+	return gm.workerRepository.Count()
 }

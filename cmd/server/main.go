@@ -3,7 +3,7 @@ package main
 import (
 	"goroutine-manager/internal/domain"
 	"goroutine-manager/internal/infra/repository/data"
-	"goroutine-manager/internal/infra/repository/goroutine"
+	"goroutine-manager/internal/infra/repository/worker"
 	"goroutine-manager/internal/usecase"
 	router "goroutine-manager/internal/web/http"
 	"log"
@@ -18,7 +18,7 @@ import (
 func main() {
 	//dataRepo := data.NewMemoryRepository()
 	useMemoryRepo := os.Getenv("USE_MEMORY_REPO")
-	var dataRepo domain.KeyValueRepository
+	var dataRepo domain.DataRepository
 
 	if useMemoryRepo == "true" {
 		log.Println("Using in-memory data repository")
@@ -31,13 +31,13 @@ func main() {
 		}
 		dataRepo = data.NewValkeyRepository(addr)
 	}
-	goroutineRepo := goroutine.NewMemoryGoroutineRepository()
-	goroutineUC := usecase.NewGoroutineInteractor(goroutineRepo, dataRepo)
+	workerRepository := worker.NewMemoryWorkerRepository()
+	workerUsecase := usecase.NewWorkerInteractor(workerRepository, dataRepo)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	router.MountRoutes(r, goroutineUC)
+	router.MountRoutes(r, workerUsecase)
 
 	// Read server port from env
 	port := os.Getenv("PORT")

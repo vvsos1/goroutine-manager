@@ -4,10 +4,11 @@ import (
 	"goroutine-manager/internal/domain"
 )
 
-type GoroutineUsecase interface {
-	Create(saveDuration int) (domain.GoroutineId, error)
-	Get(id domain.GoroutineId) (string, error)
-	Update(id domain.GoroutineId, saveDuration int) error
-	Delete(id domain.GoroutineId) error
+type WorkerUsecase interface {
+	Create(saveDuration int, workerMsg string) (domain.WorkerId, error)
+	Get(id domain.WorkerId) (*domain.Worker, error)
+	GetData(id domain.WorkerId) (*domain.Data, error)
+	Update(id domain.WorkerId, saveDuration int, workerMsg string) error
+	Delete(id domain.WorkerId) error
 	Count() int
 }

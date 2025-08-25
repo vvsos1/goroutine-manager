@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func MountRoutes(r chi.Router, usecase usecase.GoroutineUsecase) {
-	handler := NewGoroutineHandler(usecase)
+func MountRoutes(r chi.Router, usecase usecase.WorkerUsecase) {
+	handler := NewWorkerHandler(usecase)
 	r.Mount("/goroutines", handler.Routes())
 }
