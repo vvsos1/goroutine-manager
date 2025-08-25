@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = "goroutine-manager/internal/web/grpc.pb;pb";
+
+
+service WorkerService {
+  rpc CreateWorker (CreateWorkerRequest) returns (CreateWorkerResponse);
+  rpc CountWorkers (CountWorkersRequest) returns (CountWorkersResponse);
+  rpc GetWorker (GetWorkerRequest) returns (GetWorkerResponse);
+  rpc GetWorkerData (GetWorkerDataRequest) returns (GetWorkerDataResponse);
+  rpc UpdateWorker (UpdateWorkerRequest) returns (UpdateWorkerResponse);
+  rpc DeleteWorker (DeleteWorkerRequest) returns (DeleteWorkerResponse);
+}
+
+message CreateWorkerRequest {
+  int64 save_duration = 1; // in seconds
+  string worker_msg = 2;
+}
+message CreateWorkerResponse {
+  int64 worker_id = 1;
+  string msg = 2;
+}
+
+message CountWorkersRequest {}
+message CountWorkersResponse {
+  int64 worker_count = 1;
+}
+
+message GetWorkerRequest {
+  int64 worker_id = 1;
+}
+message GetWorkerResponse {
+  int64 worker_id = 1;
+  string worker_msg = 2;
+  string status = 3;
+}
+
+message GetWorkerDataRequest {
+  int64 worker_id = 1;
+}
+message GetWorkerDataResponse {
+  string last_modified = 1;
+  string cached_msg = 2;
+}
+
+message UpdateWorkerRequest {
+  int64 worker_id = 1;
+  string worker_msg = 2;
+  int64 save_duration = 3; // in seconds
+}
+message UpdateWorkerResponse {
+  string msg = 1;
+}
+
+message DeleteWorkerRequest {
+  int64 worker_id = 1;
+}
+message DeleteWorkerResponse {
+  string msg = 1;
+}

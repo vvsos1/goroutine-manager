@@ -30,7 +30,7 @@ type Worker struct {
 type WorkerRepository interface {
 	Save(worker *Worker) error
 	Get(id WorkerId) (*Worker, error)
-	Delete(id WorkerId) error
+	//Delete(id WorkerId) error
 	Count() int
 }
 
@@ -103,7 +103,8 @@ func (w *Worker) Update(saveDuration int, workerMsg string) {
 func (w *Worker) Delete() {
 	operation := &deleteOperation{}
 	w.operationChannel <- operation
-	close(w.operationChannel) // 채널을 닫아 고루틴이 종료되도록 함
+	close(w.operationChannel) // 채널을 닫아 고루틴이 종료되도록 함]
+	close(w.resultChannel)
 }
 
 func (w *Worker) saveToRepository() {

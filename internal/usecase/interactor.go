@@ -71,10 +71,10 @@ func (gm *WorkerInteractor) Delete(id domain.WorkerId) error {
 	}
 	worker.Delete()
 
-	err = gm.workerRepository.Delete(id)
-	if err != nil {
-		return fmt.Errorf("worker with id %d was not deleted", id)
-	}
+	//err = gm.workerRepository.Delete(id)
+	//if err != nil {
+	//	return fmt.Errorf("worker with id %d was not deleted", id)
+	//}
 
 	return nil
 }

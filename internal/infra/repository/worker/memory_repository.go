@@ -30,10 +30,10 @@ func (r *MemoryRepository) Get(id domain.WorkerId) (*domain.Worker, error) {
 	return worker, nil
 }
 
-func (r *MemoryRepository) Delete(id domain.WorkerId) error {
-	delete(r.workers, id)
-	return nil
-}
+//func (r *MemoryRepository) Delete(id domain.WorkerId) error {
+//	delete(r.workers, id)
+//	return nil
+//}
 
 func (r *MemoryRepository) Count() int {
 	return len(r.workers)

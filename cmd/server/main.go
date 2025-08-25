@@ -1,18 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"goroutine-manager/internal/domain"
 	"goroutine-manager/internal/infra/repository/data"
 	"goroutine-manager/internal/infra/repository/worker"
 	"goroutine-manager/internal/usecase"
+	"goroutine-manager/internal/web/grpc"
+	pb "goroutine-manager/internal/web/grpc/pb/worker"
 	router "goroutine-manager/internal/web/http"
 	"log"
+	"net"
 	"net/http"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	gogrpc "google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -39,19 +46,42 @@ func main() {
 
 	router.MountRoutes(r, workerUsecase)
 
-	// Read server port from env
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
-	listenAddr := port
-	if !strings.Contains(port, ":") {
-		listenAddr = ":" + port
-	}
-	log.Printf("HTTP server listening on %s", listenAddr)
+	errs := make(chan error)
 
-	if err := http.ListenAndServe(listenAddr, r); err != nil {
-		panic(err)
-	}
+	go func() { // Read server httpPort from env
+		httpPort := os.Getenv("HTTP_PORT")
+		if httpPort == "" {
+			httpPort = "3000"
+		}
+		log.Printf("HTTP server listening on :%s", httpPort)
 
+		errs <- http.ListenAndServe(":"+httpPort, r)
+	}()
+
+	go func() {
+		grpcPort := os.Getenv("GRPC_PORT")
+		if grpcPort == "" {
+			grpcPort = "3001"
+		}
+		listen, err := net.Listen("tcp", ":"+grpcPort)
+		if err != nil {
+			errs <- err
+		}
+
+		handler := grpc.NewWorkerHandler(workerUsecase)
+		server := gogrpc.NewServer()
+		pb.RegisterWorkerServiceServer(server, handler)
+		reflection.Register(server)
+		log.Printf("GRPC server listening on :%s", grpcPort)
+		errs <- server.Serve(listen)
+	}()
+
+	go func() {
+		// Graceful shutdown
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+		errs <- fmt.Errorf("%s", <-sigChan)
+	}()
+
+	log.Fatalf("terminated %s", <-errs)
 }

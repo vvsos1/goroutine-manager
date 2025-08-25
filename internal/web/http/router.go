@@ -8,5 +8,5 @@ import (
 
 func MountRoutes(r chi.Router, usecase usecase.WorkerUsecase) {
 	handler := NewWorkerHandler(usecase)
-	r.Mount("/goroutines", handler.Routes())
+	r.Mount("/workers", handler.Routes())
 }

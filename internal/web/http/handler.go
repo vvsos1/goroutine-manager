@@ -24,7 +24,7 @@ func (h *WorkerHandler) Routes() chi.Router {
 	r.Get("/", h.countWorkers)
 	r.Get("/{id}/cache", h.getWorkerData)
 	r.Get("/{id}", h.getWorker)
-	r.Patch("/{id}", h.updateWorker)
+	r.Put("/{id}", h.updateWorker)
 	r.Delete("/{id}", h.deleteWorker)
 	return r
 }
@@ -110,7 +110,7 @@ func (h *WorkerHandler) deleteWorker(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, http.StatusOK, result)
 }
 
-func (h *WorkerHandler) countWorkers(w http.ResponseWriter, r *http.Request) {
+func (h *WorkerHandler) countWorkers(w http.ResponseWriter, _ *http.Request) {
 	count := h.usecase.Count()
 
 	result := map[string]interface{}{

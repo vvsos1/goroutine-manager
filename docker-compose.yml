@@ -14,10 +14,12 @@ services:
       dockerfile: Dockerfile
     container_name: worker-manager
     environment:
-      - PORT=3000
+      - HTTP_PORT=3000
+      - GRPC_PORT=3001
       - VALKEY_ADDR=valkey:6379
     ports:
       - "3000:3000"
+      - "3001:3001"
     depends_on:
       - valkey
 
