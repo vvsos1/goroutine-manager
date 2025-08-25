@@ -9,6 +9,7 @@ import (
 	"goroutine-manager/internal/web/grpc"
 	pb "goroutine-manager/internal/web/grpc/pb/worker"
 	router "goroutine-manager/internal/web/http"
+	middleware2 "goroutine-manager/middleware"
 	"log"
 	"net"
 	"net/http"
@@ -41,14 +42,15 @@ func main() {
 	workerRepository := worker.NewMemoryWorkerRepository()
 	workerUsecase := usecase.NewWorkerInteractor(workerRepository, dataRepo)
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-
-	router.MountRoutes(r, workerUsecase)
-
 	errs := make(chan error)
 
-	go func() { // Read server httpPort from env
+	go func() {
+		r := chi.NewRouter()
+		r.Use(middleware2.SetRequestIdMiddleware)
+		r.Use(middleware.Logger)
+		r.Use(middleware.Recoverer)
+
+		router.MountRoutes(r, workerUsecase)
 		httpPort := os.Getenv("HTTP_PORT")
 		if httpPort == "" {
 			httpPort = "3000"
