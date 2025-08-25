@@ -8,8 +8,7 @@ services:
       - "6379:6379"
     volumes:
       - valkey-data:/data
-
-  app:
+  goroutine-manager:
     build:
       context: .
       dockerfile: Dockerfile

@@ -31,9 +31,11 @@ func (g *Goroutine) StartInGoroutine() {
 }
 
 func (g *Goroutine) process() {
+	log.Println("Goroutine started with ID:", g.Id)
 	g.started = true
 	defer func() {
 		g.started = false
+		log.Println("Goroutine ended with ID:", g.Id)
 	}()
 	tick := time.Tick(time.Second * time.Duration(g.SaveDuration))
 	for {
