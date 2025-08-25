@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-manager-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker-manager
+  template:
+    metadata:
+      labels:
+        app: worker-manager
+    spec:
+      containers:
+      - image: vvsos1/worker-manager:latest
+        imagePullPolicy: Never
+        name: worker-manager
+        ports:
+        - containerPort: 3000
+        env:
+        - name: HTTP_PORT
+          value: "3000"
+        - name: GRPC_PORT
+          value: "3001"
+        - name: VALKEY_ADDR
+          value: "valkey:6379"
+        - name: USE_MEMORY_REPO
+          value: "true"
+
