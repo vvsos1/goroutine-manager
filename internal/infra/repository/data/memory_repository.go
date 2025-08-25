@@ -1,6 +1,9 @@
 package data
 
-import "goroutine-manager/internal/domain"
+import (
+	"fmt"
+	"goroutine-manager/internal/domain"
+)
 
 type MemoryRepository struct {
 	values map[domain.GoroutineId]string
@@ -23,5 +26,10 @@ func (r *MemoryRepository) Get(key domain.GoroutineId) (string, error) {
 	if value, exists := r.values[key]; exists {
 		return value, nil
 	}
-	return "", nil // Return zero value of V if key does not exist
+	return "", fmt.Errorf("key not found: %d", key)
+}
+
+func (r *MemoryRepository) Delete(key domain.GoroutineId) error {
+	delete(r.values, key)
+	return nil
 }

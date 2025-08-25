@@ -46,6 +46,7 @@ func (g *Goroutine) process() {
 				value := g.readFromRepository()
 				g.resultChannel <- value
 			case *DeleteOperation:
+				g.deleteFromRepository()
 				return
 			case *UpdateOperation:
 				g.SaveDuration = op.SaveDuration
@@ -90,6 +91,13 @@ func (g *Goroutine) readFromRepository() string {
 		return ""
 	}
 	return value
+}
+
+func (g *Goroutine) deleteFromRepository() {
+	err := g.dataRepository.Delete(g.Id)
+	if err != nil {
+		log.Println("Failed to delete from data repository:", err)
+	}
 }
 
 var nextId GoroutineId = 0

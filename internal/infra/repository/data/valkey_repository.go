@@ -49,3 +49,13 @@ func (r *ValkeyRepository) Get(key domain.GoroutineId) (string, error) {
 	}
 	return result, nil
 }
+
+func (r *ValkeyRepository) Delete(key domain.GoroutineId) error {
+	ctx := context.Background()
+	cmd := r.client.B().Del().Key(strconv.Itoa(int(key))).Build()
+	err := r.client.Do(ctx, cmd).Error()
+	if err != nil {
+		return fmt.Errorf("failed to delete value from valkey: %w", err)
+	}
+	return nil
+}

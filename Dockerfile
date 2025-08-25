@@ -21,6 +21,7 @@ COPY --from=builder /app/server /server
 # 기본 환경변수 및 포트
 ENV VALKEY_ADDR=localhost:6379
 ENV PORT=3000
+ENV USE_MEMORY_REPO=false
 
 EXPOSE 3000
 

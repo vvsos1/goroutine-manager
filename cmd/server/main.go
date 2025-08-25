@@ -1,6 +1,7 @@
 package main
 
 import (
+	"goroutine-manager/internal/domain"
 	"goroutine-manager/internal/infra/repository/data"
 	"goroutine-manager/internal/infra/repository/goroutine"
 	"goroutine-manager/internal/usecase"
@@ -16,11 +17,20 @@ import (
 
 func main() {
 	//dataRepo := data.NewMemoryRepository()
-	addr := os.Getenv("VALKEY_ADDR")
-	if addr == "" {
-		addr = "localhost:6379"
+	useMemoryRepo := os.Getenv("USE_MEMORY_REPO")
+	var dataRepo domain.KeyValueRepository
+
+	if useMemoryRepo == "true" {
+		log.Println("Using in-memory data repository")
+		dataRepo = data.NewMemoryRepository()
+	} else {
+		log.Println("Using Valkey data repository")
+		addr := os.Getenv("VALKEY_ADDR")
+		if addr == "" {
+			addr = "localhost:6379"
+		}
+		dataRepo = data.NewValkeyRepository(addr)
 	}
-	dataRepo := data.NewValkeyRepository(addr)
 	goroutineRepo := goroutine.NewMemoryGoroutineRepository()
 	goroutineUC := usecase.NewGoroutineInteractor(goroutineRepo, dataRepo)
 
