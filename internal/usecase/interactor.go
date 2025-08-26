@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"fmt"
-	"goroutine-manager/internal/domain"
+	"worker-manager/internal/domain"
 )
 
 type WorkerInteractor struct {

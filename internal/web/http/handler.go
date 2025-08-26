@@ -2,10 +2,10 @@ package router
 
 import (
 	"encoding/json"
-	"goroutine-manager/internal/domain"
-	"goroutine-manager/internal/usecase"
 	"net/http"
 	"strconv"
+	"worker-manager/internal/domain"
+	"worker-manager/internal/usecase"
 
 	"github.com/go-chi/chi/v5"
 )

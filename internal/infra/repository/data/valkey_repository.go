@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"goroutine-manager/internal/domain"
 	"log"
 	"strconv"
+	"worker-manager/internal/domain"
 
 	"github.com/valkey-io/valkey-go"
 )

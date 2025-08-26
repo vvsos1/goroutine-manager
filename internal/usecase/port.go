@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"goroutine-manager/internal/domain"
+	"worker-manager/internal/domain"
 )
 
 type WorkerUsecase interface {

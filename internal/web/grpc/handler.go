@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"goroutine-manager/internal/domain"
-	"goroutine-manager/internal/usecase"
-	pb "goroutine-manager/internal/web/grpc/pb/worker"
+	"worker-manager/internal/domain"
+	"worker-manager/internal/usecase"
+	pb "worker-manager/internal/web/grpc/pb/worker"
 )
 
 type WorkerHandler struct {

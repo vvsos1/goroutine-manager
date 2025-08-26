@@ -2,7 +2,7 @@ package worker
 
 import (
 	"fmt"
-	"goroutine-manager/internal/domain"
+	"worker-manager/internal/domain"
 )
 
 var _ domain.WorkerRepository = (*MemoryRepository)(nil)

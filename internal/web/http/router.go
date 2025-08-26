@@ -1,7 +1,7 @@
 package router
 
 import (
-	"goroutine-manager/internal/usecase"
+	"worker-manager/internal/usecase"
 
 	"github.com/go-chi/chi/v5"
 )

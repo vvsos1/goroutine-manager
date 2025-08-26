@@ -1,4 +1,4 @@
-module goroutine-manager
+module worker-manager
 
 go 1.23.0
 
