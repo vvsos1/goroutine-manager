@@ -15,9 +15,11 @@ import (
 	"worker-manager/internal/web/grpc"
 	pb "worker-manager/internal/web/grpc/pb/worker"
 	router "worker-manager/internal/web/http"
+	grpcMiddleware "worker-manager/middleware/grpc"
+	httpMiddleware "worker-manager/middleware/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	gogrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -45,9 +47,9 @@ func main() {
 
 	go func() {
 		r := chi.NewRouter()
-		r.Use(middleware.RequestID)
-		r.Use(middleware.Logger)
-		r.Use(middleware.Recoverer)
+		r.Use(httpMiddleware.RequestId)
+		r.Use(chiMiddleware.Logger)
+		r.Use(chiMiddleware.Recoverer)
 
 		router.MountRoutes(r, workerUsecase)
 		httpPort := os.Getenv("HTTP_PORT")
@@ -70,8 +72,11 @@ func main() {
 		}
 
 		handler := grpc.NewWorkerHandler(workerUsecase)
-		server := gogrpc.NewServer()
+		server := gogrpc.NewServer(
+			gogrpc.UnaryInterceptor(
+				grpcMiddleware.RequestId))
 		pb.RegisterWorkerServiceServer(server, handler)
+		// goland grpc call test용 리플렉션 추가
 		reflection.Register(server)
 		log.Printf("GRPC server listening on :%s", grpcPort)
 		errs <- server.Serve(listen)
