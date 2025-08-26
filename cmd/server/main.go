@@ -15,7 +15,6 @@ import (
 	"worker-manager/internal/web/grpc"
 	pb "worker-manager/internal/web/grpc/pb/worker"
 	router "worker-manager/internal/web/http"
-	middleware2 "worker-manager/middleware"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -46,7 +45,7 @@ func main() {
 
 	go func() {
 		r := chi.NewRouter()
-		r.Use(middleware2.SetRequestIdMiddleware)
+		r.Use(middleware.RequestID)
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
 
