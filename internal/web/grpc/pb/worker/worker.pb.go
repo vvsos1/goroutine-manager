@@ -642,7 +642,7 @@ const file_worker_worker_proto_rawDesc = "" +
 	"\tGetWorker\x12\x11.GetWorkerRequest\x1a\x12.GetWorkerResponse\x12>\n" +
 	"\rGetWorkerData\x12\x15.GetWorkerDataRequest\x1a\x16.GetWorkerDataResponse\x12;\n" +
 	"\fUpdateWorker\x12\x14.UpdateWorkerRequest\x1a\x15.UpdateWorkerResponse\x12;\n" +
-	"\fDeleteWorker\x12\x14.DeleteWorkerRequest\x1a\x15.DeleteWorkerResponseB+Z)goroutine-manager/internal/web/grpc.pb;pbb\x06proto3"
+	"\fDeleteWorker\x12\x14.DeleteWorkerRequest\x1a\x15.DeleteWorkerResponseB+Z)worker-manager/internal/web/grpc.pb;pbb\x06proto3"
 
 var (
 	file_worker_worker_proto_rawDescOnce sync.Once
