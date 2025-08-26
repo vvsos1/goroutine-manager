@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "worker-manager/internal/web/grpc.pb;pb";
+option go_package = "api/worker";
 
 
 service WorkerService {

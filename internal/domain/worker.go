@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"log"
+	"context"
 	"time"
+	"worker-manager/util/logger"
 )
 
 type WorkerId int
@@ -28,10 +29,10 @@ type Worker struct {
 }
 
 type WorkerRepository interface {
-	Save(worker *Worker) error
-	Get(id WorkerId) (*Worker, error)
+	Save(ctx context.Context, worker *Worker) error
+	Get(ctx context.Context, id WorkerId) (*Worker, error)
 	//Delete(id WorkerId) error
-	Count() int
+	Count(ctx context.Context) int
 }
 
 func NewWorker(saveDuration int, workerMsg string, repository DataRepository) *Worker {
@@ -56,11 +57,11 @@ func (w *Worker) StartInGoroutine() {
 }
 
 func (w *Worker) process() {
-	log.Println("Worker Status with ID:", w.Id)
+	logger.Debugln(context.Background(), "Worker started with ID:", w.Id)
 	w.Status = UP
 	defer func() {
 		w.Status = DOWN
-		log.Println("Worker ended with ID:", w.Id)
+		logger.Debugln(context.Background(), "Worker ended with ID:", w.Id)
 	}()
 	tick := time.Tick(time.Second * time.Duration(w.SaveDuration))
 	for {
@@ -113,26 +114,26 @@ func (w *Worker) saveToRepository() {
 		WorkerMsg:    w.WorkerMsg,
 		LastModified: time.Now(),
 	}
-	err := w.dataRepository.Put(w.Id, data)
+	err := w.dataRepository.Put(context.Background(), w.Id, data)
 	if err != nil {
-		log.Println("Failed to save to data repository:", err)
+		logger.Infoln(context.Background(), "Failed to save to data repository:", err)
 		return
 	}
 }
 
 func (w *Worker) readFromRepository() *Data {
-	value, err := w.dataRepository.Get(w.Id)
+	value, err := w.dataRepository.Get(context.Background(), w.Id)
 	if err != nil {
-		log.Println("Failed to read from data repository:", err)
+		logger.Infoln(context.Background(), "Failed to read from data repository:", err)
 		return nil
 	}
 	return value
 }
 
 func (w *Worker) deleteFromRepository() {
-	err := w.dataRepository.Delete(w.Id)
+	err := w.dataRepository.Delete(context.Background(), w.Id)
 	if err != nil {
-		log.Println("Failed to delete from data repository:", err)
+		logger.Infoln(context.Background(), "Failed to delete from data repository:", err)
 	}
 }
 

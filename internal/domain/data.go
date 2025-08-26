@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 )
 
@@ -11,9 +12,9 @@ type Data struct {
 }
 
 type DataRepository interface {
-	Put(key WorkerId, value *Data) error
+	Put(ctx context.Context, key WorkerId, value *Data) error
 
-	Get(key WorkerId) (*Data, error)
+	Get(ctx context.Context, key WorkerId) (*Data, error)
 
-	Delete(key WorkerId) error
+	Delete(ctx context.Context, key WorkerId) error
 }

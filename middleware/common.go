@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
 
 	"github.com/google/uuid"
 )
@@ -20,10 +19,9 @@ func GenerateRequestId(prefix prefix) string {
 	return string(prefix) + uuid.New().String()
 }
 
-func GetRequestId(ctx context.Context) string {
+func GetRequestId(ctx context.Context) (string, bool) {
 	if reqId, ok := ctx.Value(RequestIdKey).(string); ok {
-		return reqId
+		return reqId, true
 	}
-	log.Println("request id not found in context")
-	return ""
+	return "", false
 }

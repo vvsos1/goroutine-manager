@@ -4,7 +4,7 @@ WORKDIR /app
 
 # tls 인증서 신뢰 문제로 인해 아래 설정 추가
 ENV GOPROXY=direct
-ENV GOINSECURE=*.golang.org/*,golang.org/*
+ENV GOINSECURE=*.golang.org/*,golang.org/*,gopkg.in/*
 RUN git config --global http.sslVerify false
 
 COPY go.mod go.sum ./

@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 	"fmt"
+	pb "worker-manager/api/worker"
 	"worker-manager/internal/domain"
 	"worker-manager/internal/usecase"
-	pb "worker-manager/internal/web/grpc/pb/worker"
 )
 
 type WorkerHandler struct {
@@ -19,21 +19,21 @@ func NewWorkerHandler(usecase usecase.WorkerUsecase) *WorkerHandler {
 	}
 }
 
-func (w *WorkerHandler) CreateWorker(_ context.Context, r *pb.CreateWorkerRequest) (*pb.CreateWorkerResponse, error) {
-	workerId, err := w.usecase.Create(int(r.SaveDuration), r.WorkerMsg)
+func (w *WorkerHandler) CreateWorker(ctx context.Context, r *pb.CreateWorkerRequest) (*pb.CreateWorkerResponse, error) {
+	workerId, err := w.usecase.Create(ctx, int(r.SaveDuration), r.WorkerMsg)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.CreateWorkerResponse{WorkerId: int64(workerId), Msg: "worker successfully created"}, nil
 }
 
-func (w *WorkerHandler) CountWorkers(_ context.Context, _ *pb.CountWorkersRequest) (*pb.CountWorkersResponse, error) {
-	count := w.usecase.Count()
+func (w *WorkerHandler) CountWorkers(ctx context.Context, _ *pb.CountWorkersRequest) (*pb.CountWorkersResponse, error) {
+	count := w.usecase.Count(ctx)
 	return &pb.CountWorkersResponse{WorkerCount: int64(count)}, nil
 }
 
-func (w *WorkerHandler) GetWorker(_ context.Context, r *pb.GetWorkerRequest) (*pb.GetWorkerResponse, error) {
-	worker, err := w.usecase.Get(domain.WorkerId(r.WorkerId))
+func (w *WorkerHandler) GetWorker(ctx context.Context, r *pb.GetWorkerRequest) (*pb.GetWorkerResponse, error) {
+	worker, err := w.usecase.Get(ctx, domain.WorkerId(r.WorkerId))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get worker: %w", err)
 	}
@@ -44,8 +44,8 @@ func (w *WorkerHandler) GetWorker(_ context.Context, r *pb.GetWorkerRequest) (*p
 	}, nil
 }
 
-func (w *WorkerHandler) GetWorkerData(_ context.Context, r *pb.GetWorkerDataRequest) (*pb.GetWorkerDataResponse, error) {
-	data, err := w.usecase.GetData(domain.WorkerId(r.WorkerId))
+func (w *WorkerHandler) GetWorkerData(ctx context.Context, r *pb.GetWorkerDataRequest) (*pb.GetWorkerDataResponse, error) {
+	data, err := w.usecase.GetData(ctx, domain.WorkerId(r.WorkerId))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get worker data: %w", err)
 	}
@@ -55,16 +55,16 @@ func (w *WorkerHandler) GetWorkerData(_ context.Context, r *pb.GetWorkerDataRequ
 	}, nil
 }
 
-func (w *WorkerHandler) UpdateWorker(_ context.Context, r *pb.UpdateWorkerRequest) (*pb.UpdateWorkerResponse, error) {
-	err := w.usecase.Update(domain.WorkerId(r.WorkerId), int(r.SaveDuration), r.WorkerMsg)
+func (w *WorkerHandler) UpdateWorker(ctx context.Context, r *pb.UpdateWorkerRequest) (*pb.UpdateWorkerResponse, error) {
+	err := w.usecase.Update(ctx, domain.WorkerId(r.WorkerId), int(r.SaveDuration), r.WorkerMsg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update worker: %w", err)
 	}
 	return &pb.UpdateWorkerResponse{Msg: "worker successfully updated"}, nil
 }
 
-func (w *WorkerHandler) DeleteWorker(_ context.Context, r *pb.DeleteWorkerRequest) (*pb.DeleteWorkerResponse, error) {
-	err := w.usecase.Delete(domain.WorkerId(r.WorkerId))
+func (w *WorkerHandler) DeleteWorker(ctx context.Context, r *pb.DeleteWorkerRequest) (*pb.DeleteWorkerResponse, error) {
+	err := w.usecase.Delete(ctx, domain.WorkerId(r.WorkerId))
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete worker: %w", err)
 	}

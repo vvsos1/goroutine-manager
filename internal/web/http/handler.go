@@ -39,7 +39,7 @@ func (h *WorkerHandler) createWorker(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Cannot Decode Body", http.StatusBadRequest)
 		return
 	}
-	id, err := h.usecase.Create(body.SaveDuration, body.WorkerMsg)
+	id, err := h.usecase.Create(r.Context(), body.SaveDuration, body.WorkerMsg)
 	if err != nil {
 		http.Error(w, "Cannot Create Worker", http.StatusInternalServerError)
 		return
@@ -59,7 +59,7 @@ func (h *WorkerHandler) getWorkerData(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	value, err := h.usecase.GetData(domain.WorkerId(intId))
+	value, err := h.usecase.GetData(r.Context(), domain.WorkerId(intId))
 	if err != nil {
 		http.Error(w, "Worker Not Found", http.StatusNotFound)
 		return
@@ -79,7 +79,7 @@ func (h *WorkerHandler) getWorker(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	value, err := h.usecase.Get(domain.WorkerId(intId))
+	value, err := h.usecase.Get(r.Context(), domain.WorkerId(intId))
 	if err != nil {
 		http.Error(w, "Worker Not Found", http.StatusNotFound)
 		return
@@ -99,7 +99,7 @@ func (h *WorkerHandler) deleteWorker(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	err = h.usecase.Delete(domain.WorkerId(intId))
+	err = h.usecase.Delete(r.Context(), domain.WorkerId(intId))
 	if err != nil {
 		http.Error(w, "Worker Not Found", http.StatusNotFound)
 		return
@@ -110,8 +110,8 @@ func (h *WorkerHandler) deleteWorker(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, http.StatusOK, result)
 }
 
-func (h *WorkerHandler) countWorkers(w http.ResponseWriter, _ *http.Request) {
-	count := h.usecase.Count()
+func (h *WorkerHandler) countWorkers(w http.ResponseWriter, r *http.Request) {
+	count := h.usecase.Count(r.Context())
 
 	result := map[string]interface{}{
 		"count": count,
@@ -137,7 +137,7 @@ func (h *WorkerHandler) updateWorker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.usecase.Update(domain.WorkerId(intId), body.SaveDuration, body.WorkerMsg)
+	err = h.usecase.Update(r.Context(), domain.WorkerId(intId), body.SaveDuration, body.WorkerMsg)
 	if err != nil {
 		http.Error(w, "Worker Not Found", http.StatusNotFound)
 		return

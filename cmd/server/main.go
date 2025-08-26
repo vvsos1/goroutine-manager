@@ -1,22 +1,23 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	pb "worker-manager/api/worker"
 	"worker-manager/internal/domain"
 	"worker-manager/internal/infra/repository/data"
 	"worker-manager/internal/infra/repository/worker"
 	"worker-manager/internal/usecase"
 	"worker-manager/internal/web/grpc"
-	pb "worker-manager/internal/web/grpc/pb/worker"
 	router "worker-manager/internal/web/http"
 	grpcMiddleware "worker-manager/middleware/grpc"
 	httpMiddleware "worker-manager/middleware/http"
+	"worker-manager/util/logger"
 
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -30,10 +31,10 @@ func main() {
 	var dataRepo domain.DataRepository
 
 	if useMemoryRepo == "true" {
-		log.Println("Using in-memory data repository")
+		logger.Infoln(context.Background(), "Using in-memory data repository")
 		dataRepo = data.NewMemoryRepository()
 	} else {
-		log.Println("Using Valkey data repository")
+		logger.Infoln(context.Background(), "Using Valkey data repository")
 		addr := os.Getenv("VALKEY_ADDR")
 		if addr == "" {
 			addr = "localhost:6379"
@@ -56,7 +57,7 @@ func main() {
 		if httpPort == "" {
 			httpPort = "3000"
 		}
-		log.Printf("HTTP server listening on :%s", httpPort)
+		logger.Infoln(context.Background(), "HTTP server listening on :", httpPort)
 
 		errs <- http.ListenAndServe(":"+httpPort, r)
 	}()
@@ -78,7 +79,7 @@ func main() {
 		pb.RegisterWorkerServiceServer(server, handler)
 		// goland grpc call test용 리플렉션 추가
 		reflection.Register(server)
-		log.Printf("GRPC server listening on :%s", grpcPort)
+		logger.Infoln(context.Background(), "GRPC server listening on :", grpcPort)
 		errs <- server.Serve(listen)
 	}()
 
@@ -89,5 +90,5 @@ func main() {
 		errs <- fmt.Errorf("%s", <-sigChan)
 	}()
 
-	log.Fatalf("terminated %s", <-errs)
+	logger.Errorf(context.Background(), "terminated %s", <-errs)
 }
