@@ -1,0 +1,54 @@
+From d971363a7e2711a056a2daafb4a788140bbf32a4 Mon Sep 17 00:00:00 2001
+From: Fix Author <fix@example.com>
+Date: 2026-03-29
+Subject: [PATCH] fix(gemini): pass apiBase to GoogleGenAI httpOptions.baseUrl
+
+When a user sets a custom `apiBase` for the gemini provider,
+`GeminiApi` correctly stores it in `this.apiBase` but the
+`GoogleGenAI` SDK instance is created without `httpOptions.baseUrl`,
+so all chat requests are sent to the hard-coded default Google endpoint
+(`https://generativelanguage.googleapis.com/`) instead of the custom one.
+
+Fix: pass `httpOptions: { baseUrl: this.apiBase, apiVersion: "" }` to
+the `GoogleGenAI` constructor. `apiVersion` is set to `""` because
+Continue's `apiBase` already includes the API version segment
+(e.g. `/v1beta/`); without this the SDK would double-append it,
+producing invalid URLs like `.../v1beta/v1beta/models/...`.
+
+The embed() method already constructs URLs correctly via `customFetch`
+using `this.apiBase` directly, so it is not affected.
+
+Fixes: Custom `apiBase` ignored for gemini provider chat requests.
+---
+ packages/openai-adapters/src/apis/Gemini.ts | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/packages/openai-adapters/src/apis/Gemini.ts b/packages/openai-adapters/src/apis/Gemini.ts
+index f7298267..XXXXXXXX 100644
+--- a/packages/openai-adapters/src/apis/Gemini.ts
++++ b/packages/openai-adapters/src/apis/Gemini.ts
+@@ -68,11 +68,19 @@ export class GeminiApi implements BaseLlmApi {
+ 
+   constructor(protected config: GeminiConfig) {
+     this.apiBase = config.apiBase ?? this.apiBase;
+-    // Create GoogleGenAI with native fetch to avoid pollution
+-    // from Vercel AI SDK packages that can break stream handling
++    // Create GoogleGenAI with native fetch to avoid pollution
++    // from Vercel AI SDK packages that can break stream handling
+     this.genAI = withNativeFetch(
+       () =>
+         new GoogleGenAI({
+           apiKey: this.config.apiKey,
++          // Pass apiBase so that custom endpoints (e.g. API proxies) are
++          // used for chat requests. apiVersion is set to "" because
++          // Continue's apiBase already includes the version segment
++          // (e.g. /v1beta/), preventing the SDK from appending it again.
++          httpOptions: {
++            baseUrl: this.apiBase,
++            apiVersion: "",
++          },
+         }),
+     );
+   }
+-- 
+2.39.0
